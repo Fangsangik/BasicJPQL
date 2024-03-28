@@ -1,5 +1,6 @@
 import jakarta.persistence.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,29 +12,41 @@ public class JpaMain {
         tx.begin();
 
         try {
+            Team teamA = new Team();
+            teamA.setName("TeamA");
+            em.persist(teamA);
 
-            Team team = new Team();
-            team.setName("TeamA");
-            em.persist(team);
+            Team teamB = new Team();
+            teamB.setName("TeamB");
+            em.persist(teamB);
 
             Member member = new Member();
             member.setUsername("관리자");
-            member.setAge(11);
-            member.setTeam(team);
-
+            member.setAge(0);
+            member.setTeam(teamA);
             em.persist(member);
 
+            Member member2 = new Member();
+            member2.setUsername("관리자");
+            member.setAge(0);
+            member2.setTeam(teamA);
+            em.persist(member2);
 
-            em.flush();
+            Member member3 = new Member();
+            member3.setUsername("관리자");
+            member.setAge(0);
+            member3.setTeam(teamB);
+            em.persist(member3);
+
+
+            //flush
+            int rstCnt = em.createQuery("update Member m set m.age = 20")
+                    .executeUpdate();
             em.clear();
 
-            String q = "select NULLIF (m.username, '관리자') from Member m";
-            List<String> query = em.createQuery(q, String.class)
-                            .getResultList();
+            Member findMember = em.find(Member.class, member.getId());
+            System.out.println("findMember = " + findMember.getAge());
 
-            for (String s : query) {
-                System.out.println("s = " + s);
-            }
             tx.commit();
 
         } catch (Exception e) {
